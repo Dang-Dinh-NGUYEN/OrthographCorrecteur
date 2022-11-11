@@ -16,15 +16,15 @@ public class Trigram {
     }
 
     public String toString(){
-        String st = "";
+        StringBuilder st = new StringBuilder();
         for (String key : trigrams.keySet()) {
-            st += key + " = " +  trigrams.get(key) + ",";
+            st.append(key).append(" = ").append(trigrams.get(key)).append(",");
         }
-        return st;
+        return st.toString();
     }
 
     public ArrayList<String> trigramsOfWord(String word){
-        ArrayList trigramsOfWord = new ArrayList();
+        ArrayList <String>trigramsOfWord = new ArrayList<>();
         word = "<" + word +">";
         for(int i = 0; i < word.length() - 2; i++)
             trigramsOfWord.add(word.substring(i,i + 3));
@@ -32,43 +32,34 @@ public class Trigram {
     }
 
     public ArrayList<String> mostCommons(String word) {
-        ArrayList<String> wordsWithCommonTrigrams = new ArrayList<>();
         HashMap<String,Integer> count = new HashMap<>();
-
         for(String trigram : trigramsOfWord(word)){
             try{
                 for(String w :trigrams.get(trigram)) {
-                    if (!count.containsKey(w)) {
-                        count.put(w,1);
-                    } else {
-                        count.put(w, count.get(w) + 1);
-                    }
+                    count.put(w, count.containsKey(w) ? count.get(w) + 1 : 1);
                 }
-                wordsWithCommonTrigrams.addAll(trigrams.get(trigram));
-            }catch (NullPointerException e){ continue;}
+            }catch (NullPointerException ignored){}
         }
 
         ArrayList<String> mostCommons = new ArrayList<>();
         int cmp = 0;
         while (cmp <= 100 && cmp < count.size()){
-            mostCommons.add(count.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey());
-            count.remove(count.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey());
+            String mostOccurring = count.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+            mostCommons.add(mostOccurring);
+            count.remove(mostOccurring);
             cmp++;
         }
-
-        System.out.print(mostCommons.subList(0,5) + " -> ");
         return mostCommons;
     }
 
     public String correct( String word, ArrayList<String> mostCommons){
-        int smallestDistance = Levenshtein.distanceLevenshtein(word, mostCommons.get(0));
-        int indexOfSmallestDistance = 0;
+        String corrected = mostCommons.get(0);
         for(int i = 1; i < mostCommons.size(); i++) {
-            if (Levenshtein.distanceLevenshtein(word, mostCommons.get(i)) < smallestDistance) {
-                smallestDistance = Levenshtein.distanceLevenshtein(word, mostCommons.get(i));
-                indexOfSmallestDistance = i;
+            if (Levenshtein.distanceLevenshtein(word,mostCommons.get(i)) < Levenshtein.distanceLevenshtein(word,corrected)) {
+                corrected = mostCommons.get(i);
             }
         }
-        return mostCommons.get(indexOfSmallestDistance);
+        System.out.print(mostCommons.subList(0,5) + " -> ");
+        return corrected;
     }
 }

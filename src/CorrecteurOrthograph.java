@@ -16,7 +16,6 @@ public class CorrecteurOrthograph {
         while ((st = br.readLine()) != null) {
             dictionary.add(st.toLowerCase(Locale.ROOT));
             st = "<" + st +">";
-
             for(int i = 0; i < st.length() - 2; i++) {
                 if(!trigrams.containsKey(st.substring(i, i + 3))){
                     ArrayList<String> wordsWithTrigram = new ArrayList<>();
@@ -33,7 +32,7 @@ public class CorrecteurOrthograph {
     public String correct(String word){
         if(dictionary.contains(word))return word;
         Trigram trigram = new Trigram(trigrams);
-        return trigram.correct(word, trigram.mostCommons(word));
+        return trigram.correct(word,trigram.mostCommons(word));
     }
 
     public void correctAll(String text) throws IOException {
@@ -41,7 +40,7 @@ public class CorrecteurOrthograph {
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st;
         while ((st = br.readLine()) != null) {
-            System.out.println(st + " == " + correct(st));
+            System.out.println(st + " = " + correct(st));
         }
         br.close();
     }
