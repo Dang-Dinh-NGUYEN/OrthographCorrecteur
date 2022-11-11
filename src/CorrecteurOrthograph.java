@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Locale;
 
 public class CorrecteurOrthograph {
-    private static HashSet<String> dictionary = new HashSet<>();
-    private static HashMap<String, HashSet<String>> trigramsOfEach = new HashMap<>();
+    private  HashSet<String> dictionary = new HashSet<>();
+    private static HashMap<String, ArrayList<String>> trigrams = new HashMap<>();
 
 
     public CorrecteurOrthograph(String filename) throws IOException {
@@ -16,13 +16,14 @@ public class CorrecteurOrthograph {
         while ((st = br.readLine()) != null) {
             dictionary.add(st.toLowerCase(Locale.ROOT));
             st = "<" + st +">";
+
             for(int i = 0; i < st.length() - 2; i++) {
-                if(!trigramsOfEach.containsKey(st)){
-                    HashSet<String> trigram = new HashSet<>();
-                    trigram.add(st.substring(i, i + 3));
-                    trigramsOfEach.put(st,trigram);
+                if(!trigrams.containsKey(st.substring(i, i + 3))){
+                    ArrayList<String> wordsWithTrigram = new ArrayList<>();
+                    wordsWithTrigram.add(st);
+                    trigrams.put(st.substring(i, i + 3),wordsWithTrigram);
                 }else{
-                    trigramsOfEach.get(st).add(st.substring(i, i + 3));
+                    trigrams.get(st.substring(i, i + 3)).add(st);
                 }
             }
         }
@@ -31,9 +32,8 @@ public class CorrecteurOrthograph {
 
     public String correct(String word){
         if(dictionary.contains(word))return word;
-        Trigram trigram = new Trigram(trigramsOfEach);
-        ArrayList<String> mostCommons = trigram.mostCommons(word);
-        return trigram.correct(word,mostCommons);
+        Trigram trigram = new Trigram(trigrams);
+        return trigram.correct(word, trigram.mostCommons(word));
     }
 
     public void correctAll(String text) throws IOException {
@@ -41,7 +41,7 @@ public class CorrecteurOrthograph {
         BufferedReader br = new BufferedReader(new FileReader(file));
         String st;
         while ((st = br.readLine()) != null) {
-            System.out.println(correct(st));
+            System.out.println(st + " == " + correct(st));
         }
         br.close();
     }
